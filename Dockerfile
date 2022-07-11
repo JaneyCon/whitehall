@@ -36,9 +36,15 @@ RUN apt-get update -qy && \
     ln -s /usr/bin/yarnpkg /usr/bin/yarn
 
 RUN mkdir /app && \
-    ln -fs /tmp /app/tmp && \
-    ln -fs /tmp /app/asset-manager-tmp && \
-    ln -fs /tmp /home/app
+    rm -fr /app/tmp && ln -fs /tmp /app/tmp && \
+    rm -fr /app/asset-manager-tmp && ln -fs /tmp /app/asset-manager-tmp && \
+    rm -fr /app/carrierwave-tmp && ln -fs /tmp /app/carrierwave-tmp && \
+    rm -fr /app/attachment-cache && ln -fs /tmp /app/attachment-cache && \
+    rm -fr /app/bulk-upload-zip-file-tmp && ln -fs /tmp /app/bulk-upload-zip-file-tmp && \
+    rm -fr /app/clean-uploads && ln -fs /tmp /app/clean-uploads && \
+    rm -fr /app/incoming-uploads && ln -fs /tmp /app/incoming-uploads && \
+    rm -fr /app/infected-uploads && ln -fs /tmp /app/infected-uploads && \
+    rm -fr /home/app && ln -fs /tmp /home/app
 WORKDIR /app
 RUN echo 'install: --no-document' >> /etc/gemrc && gem update --system --silent && gem cleanup
 COPY Gemfile Gemfile.lock .ruby-version /app/
