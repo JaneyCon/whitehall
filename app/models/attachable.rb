@@ -1,11 +1,13 @@
 module Attachable
   extend ActiveSupport::Concern
+  CASE_CREATION_TIME = 5.seconds
 
   included do
     has_many :attachments,
              -> { not_deleted.order("attachments.ordering, attachments.id") },
              as: :attachable,
              inverse_of: :attachable
+
     has_many :html_attachments,
              -> { not_deleted.order("attachments.ordering, attachments.id") },
              as: :attachable
@@ -13,6 +15,11 @@ module Attachable
     has_many :deleted_html_attachments,
              -> { deleted },
              class_name: "HtmlAttachment",
+             as: :attachable
+
+    has_many :deleted_attachments,
+             -> { deleted },
+             class_name: "Attachment",
              as: :attachable
 
     if respond_to?(:add_trait)
@@ -58,6 +65,21 @@ module Attachable
 
   def attachables
     [self]
+  end
+
+  def has_attachment_changes?
+    created_attachments.any? || updated_attachments.any? || deleted_attachments.any?
+  end
+
+  def created_attachments
+    attachments.where("created_at > ?", created_at + CASE_CREATION_TIME)
+  end
+
+  def updated_attachments
+    updated_attachments = attachments.where("updated_at > ?", created_at) ||
+      attachments.join(:govspeak_content).where("govspeak_content.updated_at > ?", govspeak_content.created_at)
+
+    updated_attachments - created_attachments
   end
 
   def uploaded_to_asset_manager?
