@@ -88,6 +88,7 @@ class Admin::EditionsController < Admin::BaseController
   def new; end
 
   def create
+    Rails.logger.info(params.to_unsafe_hash)
     if updater.can_perform? && @edition.save
       updater.perform!
       redirect_to show_or_edit_path, saved_confirmation_notice
