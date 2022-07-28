@@ -13,87 +13,91 @@
 <% end %>
 
 <% content_for :navbar do %>
-  <header class="
-    masthead
-    navbar
-    navbar-default
-    navbar-inverse
-    navbar-static-top
-    <% if environment_style %>environment-indicator<% end %>
-    add-bottom-margin" role="banner">
-    <div class="navbar-container container-fluid">
-      <div class="navbar-header">
-        <%# Bootstrap toggle for collapsed navbar content, used at smaller widths %>
-        <a class="navbar-toggle" data-toggle="collapse" data-target="header .navbar-collapse">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </a>
-        <%= link_to "GOV.UK Whitehall", admin_root_path, :class => 'navbar-brand' %>
-        <% if environment_label %>
-          <div class="environment-label">
-            <%= environment_label %>
-          </div>
-        <% end %>
-      </div>
-      <nav role="navigation" class="collapse navbar-collapse">
-        <ul class="nav navbar-nav">
-          <li><%= link_to "Dashboard", admin_root_path %></li>
-          <li><%= link_to "View website", Whitehall.public_root, class: "open_website" %></li>
-        </ul>
-        <div class="navbar-text pull-right remove-bottom-margin">
-          <ul class="list-inline">
-              <li>
-                  <%= signon_link %>
-              </li>
-            <% if user_signed_in? %>
-              <li>
-                <%= link_to current_user.name, admin_user_path(current_user), id: "#user_settings" %>
-              </li>
-              <li>
-                <%= link_to "Logout", "/auth/gds/sign_out" %>
-              </li>
+  <div class="legacy-bootstrap">
+    <div<% if environment_style %> class="environment-<%= environment_style %>"<% end %>>
+      <header class="
+        masthead
+        navbar
+        navbar-default
+        navbar-inverse
+        navbar-static-top
+        <% if environment_style %>environment-indicator<% end %>
+        add-bottom-margin" role="banner">
+        <div class="navbar-container container-fluid">
+          <div class="navbar-header">
+            <%# Bootstrap toggle for collapsed navbar content, used at smaller widths %>
+            <a class="navbar-toggle" data-toggle="collapse" data-target="header .navbar-collapse">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </a>
+            <%= link_to "GOV.UK Whitehall", admin_root_path, :class => 'navbar-brand' %>
+            <% if environment_label %>
+              <div class="environment-label">
+                <%= environment_label %>
+              </div>
             <% end %>
-            <%= admin_users_header_link  %>
+          </div>
+          <nav role="navigation" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+              <li><%= link_to "Dashboard", admin_root_path %></li>
+              <li><%= link_to "View website", Whitehall.public_root, class: "open_website" %></li>
+            </ul>
+            <div class="navbar-text pull-right remove-bottom-margin">
+              <ul class="list-inline">
+                  <li>
+                      <%= signon_link %>
+                  </li>
+                <% if user_signed_in? %>
+                  <li>
+                    <%= link_to current_user.name, admin_user_path(current_user), id: "#user_settings" %>
+                  </li>
+                  <li>
+                    <%= link_to "Logout", "/auth/gds/sign_out" %>
+                  </li>
+                <% end %>
+                <%= admin_users_header_link  %>
+              </ul>
+            </div>
+          </nav>
+        </div>
+
+        <div class="container-fluid">
+          <ul id="global-nav" class="masthead-tabs list-unstyled">
+            <li class="masthead-tab-item js-create-new create-new">
+              <a href="#new-document-menu" class="toggler" id="new-document-label">New document</a>
+              <%= document_creation_dropdown %>
+            </li>
+            <%= admin_documents_header_link %>
+            <%= admin_statistics_announcements_link %>
+            <%= admin_featured_header_link %>
+            <%= admin_user_organisation_header_link %>
+            <li class="js-more-nav masthead-tab-item">
+              <a href="#more-links-menu" id="more-links-label" class="toggler">More</a>
+              <ul id="more-links-menu" class="masthead-menu masthead-menu-right js-hidden unstyled" role="menu" aria-labelledby="more-links-label">
+                <%= admin_organisations_header_menu_link %>
+                <%= admin_policy_groups_header_menu_link %>
+                <%= admin_roles_header_menu_link %>
+                <%= admin_people_header_menu_link %>
+                <%= admin_topical_events_header_menu_link %>
+                <%= admin_worldwide_organisations_header_menu_link %>
+                <%= admin_world_locations_header_menu_link %>
+                <%= admin_fields_of_operation_header_menu_link %>
+                <%= admin_cabinet_ministers_header_menu_link %>
+                <%= admin_get_involved_header_menu_link %>
+                <%= admin_sitewide_settings_header_menu_link %>
+                <%= admin_governments_header_menu_link %>
+              </ul>
+            </li>
           </ul>
         </div>
-      </nav>
+        <section class="notices">
+          <%= render partial: "shared/notices" %>
+        </section>
+      </header>
     </div>
-
-    <div class="container-fluid">
-      <ul id="global-nav" class="masthead-tabs list-unstyled">
-        <li class="masthead-tab-item js-create-new create-new">
-          <a href="#new-document-menu" class="toggler" id="new-document-label">New document</a>
-          <%= document_creation_dropdown %>
-        </li>
-        <%= admin_documents_header_link %>
-        <%= admin_statistics_announcements_link %>
-        <%= admin_featured_header_link %>
-        <%= admin_user_organisation_header_link %>
-        <li class="js-more-nav masthead-tab-item">
-          <a href="#more-links-menu" id="more-links-label" class="toggler">More</a>
-          <ul id="more-links-menu" class="masthead-menu masthead-menu-right js-hidden unstyled" role="menu" aria-labelledby="more-links-label">
-            <%= admin_organisations_header_menu_link %>
-            <%= admin_policy_groups_header_menu_link %>
-            <%= admin_roles_header_menu_link %>
-            <%= admin_people_header_menu_link %>
-            <%= admin_topical_events_header_menu_link %>
-            <%= admin_worldwide_organisations_header_menu_link %>
-            <%= admin_world_locations_header_menu_link %>
-            <%= admin_fields_of_operation_header_menu_link %>
-            <%= admin_cabinet_ministers_header_menu_link %>
-            <%= admin_get_involved_header_menu_link %>
-            <%= admin_sitewide_settings_header_menu_link %>
-            <%= admin_governments_header_menu_link %>
-          </ul>
-        </li>
-      </ul>
-    </div>
-    <section class="notices">
-      <%= render partial: "shared/notices" %>
-    </section>
-  </header>
+  </div>
 <% end %>
 
 <% content_for :content do %>
@@ -120,5 +124,88 @@
   <% end %>
 <% end %>
 
-<%# use the govuk_admin_template layout %>
-<%= render :template => 'layouts/govuk_admin_template' %>
+<%
+  environment_style = GovukAdminTemplate.environment_style
+  environment_label = GovukAdminTemplate.environment_label
+  app_home_path = content_for?(:app_home_path) ? yield(:app_home_path) : root_path
+  app_title = content_for?(:app_title) ? yield(:app_title) : GovukAdminTemplate::Config.app_title
+  has_navbar_content = GovukAdminTemplate::Config.show_signout || content_for?(:navbar_right) || content_for?(:navbar_items)
+  disable_google_analytics = GovukAdminTemplate::Config.disable_google_analytics
+  allow_google_analytics_stub = (Rails.env.development? || (Rails.env.test? && GovukAdminTemplate::Config.enable_google_analytics_in_tests))
+%>
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js ie8 <%= yield(:html_class) %>" lang="en"><![endif]-->
+<!--[if IE 9]><html class="no-js ie9 <%= yield(:html_class) %>" lang="en"><![endif]-->
+<!--[if gt IE 9]><!--><html class="no-js <%= yield(:html_class) %>" lang="en"><!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <title><%= content_for?(:page_title) ? yield(:page_title) : app_title %></title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>(function(d){d.className=d.className.replace(/^no-js\b/,'js');}(document.documentElement));</script>
+    <% # jQuery and Bootstrap %>
+    <%= javascript_include_tag "govuk-admin-template" %>
+    <% if content_for?(:favicon) %>
+      <%= yield :favicon %>
+    <% else %>
+      <%= favicon_link_tag environment_style ?
+        "govuk_admin_template/favicon-#{environment_style}.png" : "govuk_admin_template/favicon.png"
+      %>
+    <% end %>
+    <%= yield :head %>
+    <%
+      # HTML5 and bootstrap shims, for <= IE8 support of HTML5 elements
+      # respond.js must come after CSS (from :head) and media queries so
+      # that rules and styles can be correctly calculated.
+    %>
+    <!--[if lte IE 8]>
+      <%= javascript_include_tag "lte-ie8" %>
+    <![endif]-->
+  </head>
+  <body<% if environment_style %> class="environment-<%= environment_style %>"<% end %>>
+    <%= yield :body_start %>
+    <%= yield(:navbar) %>
+    <section class="<%= content_for?(:full_width) ? 'container-fluid' : 'container' %>">
+      <main role="main">
+        <div class="legacy-bootstrap">
+          <% if GovukAdminTemplate::Config.show_flash %>
+            <%= display_flash_message %>
+          <% end %>
+        </div>
+        <%= content_for?(:content) ? yield(:content) : yield %>
+      </main>
+      <footer class="page-footer legacy-bootstrap">
+        <%= yield :footer_top %>
+        <a class="inherit" href="https://www.nationalarchives.gov.uk/information-management/re-using-public-sector-information/uk-government-licensing-framework/crown-copyright/">&copy; Crown Copyright</a>
+        <% if content_for?(:footer_version) %>
+          <span class="pull-right">Version: <%= yield :footer_version %></span>
+        <% end %>
+      </footer>
+    </section>
+    <%= yield :body_end %>
+    <% unless disable_google_analytics %>
+      <% if Rails.env.production? %>
+        <script class="analytics">
+          (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+          (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+          })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+          ga('create', 'UA-26179049-6', '<%= ENV.fetch('GOVUK_APP_DOMAIN') %>');
+          ga('set', 'anonymizeIp', true);
+          <%= content_for(:before_pageview_js) %>
+          <% if content_for?(:custom_pageview_fullpath) %>
+            GOVUKAdmin.trackPageview('<%= content_for(:custom_pageview_fullpath) %>');
+          <% else %>
+            ga('send', 'pageview');
+          <% end %>
+        </script>
+      <% elsif allow_google_analytics_stub %>
+        <script>
+          if (console) {window.ga = function() {console.log.apply(console, arguments);};}
+          <%= content_for(:before_pageview_js) %>
+        </script>
+      <% end %>
+    <% end %>
+  </body>
+</html>
