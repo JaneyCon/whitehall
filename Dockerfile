@@ -97,5 +97,5 @@ COPY --from=builder /app ./
 
 RUN groupadd -g 1001 app && \
     useradd -u 1001 -g app app
-USER 1001
+#USER 1001
 CMD ["bundle", "exec", "puma"]
