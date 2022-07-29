@@ -82,7 +82,7 @@ ENV ASSETS_PREFIX=/assets/whitehall \
 # TODO: have an up-to-date base image and stop running apt-get here.
 RUN apt-get update -qy && \
     apt-get upgrade -y --purge && \
-    apt-get install -y --no-install-recommends libmariadb3 && \
+    apt-get install -y --no-install-recommends libmariadb3 imagemagick && \
     apt-get clean && \
     rm -fr /var/lib/apt/lists
 
