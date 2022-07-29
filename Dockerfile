@@ -36,15 +36,15 @@ RUN apt-get update -qy && \
     ln -s /usr/bin/yarnpkg /usr/bin/yarn
 
 RUN mkdir /app && \
-    rm -fr /app/tmp && ln -fs /tmp /app/tmp && \
-    rm -fr /app/asset-manager-tmp && ln -fs /tmp /app/asset-manager-tmp && \
-    rm -fr /app/carrierwave-tmp && ln -fs /tmp /app/carrierwave-tmp && \
-    rm -fr /app/attachment-cache && ln -fs /tmp /app/attachment-cache && \
-    rm -fr /app/bulk-upload-zip-file-tmp && ln -fs /tmp /app/bulk-upload-zip-file-tmp && \
-    rm -fr /app/clean-uploads && ln -fs /tmp /app/clean-uploads && \
-    rm -fr /app/incoming-uploads && ln -fs /tmp /app/incoming-uploads && \
-    rm -fr /app/infected-uploads && ln -fs /tmp /app/infected-uploads && \
-    rm -fr /home/app && ln -fs /tmp /home/app
+    rm -fr /app/tmp && mkdir -p /tmp/app-tmp && ln -fs /tmp/app-tmp /app/tmp && \
+    rm -fr /app/asset-manager-tmp && mkdir /tmp/asset-manager-tmp && ln -fs /tmp/asset-manager-tmp /app/asset-manager-tmp && \
+    rm -fr /app/carrierwave-tmp && mkdir /tmp/carrierwave-tmp && ln -fs /tmp/carrierwave-tmp /app/carrierwave-tmp && \
+    rm -fr /app/attachment-cache && mkdir /tmp/attachment-cache && ln -fs /tmp/attachment-cache /app/attachment-cache && \
+    rm -fr /app/bulk-upload-zip-file-tmp && mkdir /tmp/bulk-upload-zip-file-tmp && ln -fs /tmp/bulk-upload-zip-file-tmp /app/bulk-upload-zip-file-tmp && \
+    rm -fr /app/clean-uploads && mkdir /tmp/clean-uploads && ln -fs /tmp/clean-uploads /app/clean-uploads && \
+    rm -fr /app/incoming-uploads && mkdir /tmp/incoming-uploads && ln -fs /tmp/incoming-uploads /app/incoming-uploads && \
+    rm -fr /app/infected-uploads && mkdir /tmp/infected-uploads && ln -fs /tmp/infected-uploads /app/infected-uploads && \
+    rm -fr /home/app && mkdir /tmp/home-app && ln -fs /tmp/home-app /home/app
 WORKDIR /app
 RUN echo 'install: --no-document' >> /etc/gemrc && gem update --system --silent && gem cleanup
 COPY Gemfile Gemfile.lock .ruby-version /app/
@@ -57,7 +57,7 @@ COPY package.json yarn.lock /app/
 RUN yarnpkg install --production --frozen-lockfile --non-interactive --link-duplicates
 COPY . /app
 RUN bundle exec bootsnap precompile --gemfile .
-RUN bundle exec rails assets:precompile && rm -fr log asset-manager-tmp bulk-upload-zip-file-tmp
+RUN bundle exec rails assets:precompile
 
 
 FROM $base_image
@@ -87,6 +87,7 @@ RUN apt-get update -qy && \
     rm -fr /var/lib/apt/lists
 
 WORKDIR /app
+
 RUN mkdir -p /app && ln -fs /tmp /app/tmp && ln -fs /tmp /home/app && \
     echo 'IRB.conf[:HISTORY_FILE] = "/tmp/irb_history"' > irb.rc
 COPY --from=builder /usr/bin/node* /usr/bin/
@@ -98,4 +99,15 @@ COPY --from=builder /app ./
 RUN groupadd -g 1001 app && \
     useradd -u 1001 -g app app
 USER 1001
+
+RUN mkdir /tmp/app-tmp && \
+    mkdir /tmp/asset-manager-tmp && \
+    mkdir /tmp/carrierwave-tmp && \
+    mkdir /tmp/attachment-cache && \
+    mkdir /tmp/bulk-upload-zip-file-tmp && \
+    mkdir /tmp/clean-uploads && \
+    mkdir /tmp/incoming-uploads && \
+    mkdir /tmp/infected-uploads && \
+    mkdir /tmp/home-app
+
 CMD ["bundle", "exec", "puma"]
