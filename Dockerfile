@@ -37,7 +37,7 @@ RUN apt-get update -qy && \
 
 RUN mkdir /app && \
     rm -fr /app/tmp && mkdir -p /tmp/app-tmp && ln -fs /tmp/app-tmp /app/tmp && \
-    rm -fr /app/asset-manager-tmp && mkdir /tmp/asset-manager-tmp && ln -fs /tmp/asset-manager-tmp /app/asset-manager-tmp && \
+    # rm -fr /app/asset-manager-tmp && mkdir /tmp/asset-manager-tmp && ln -fs /tmp/asset-manager-tmp /app/asset-manager-tmp && \
     rm -fr /app/carrierwave-tmp && mkdir /tmp/carrierwave-tmp && ln -fs /tmp/carrierwave-tmp /app/carrierwave-tmp && \
     rm -fr /app/attachment-cache && mkdir /tmp/attachment-cache && ln -fs /tmp/attachment-cache /app/attachment-cache && \
     rm -fr /app/bulk-upload-zip-file-tmp && mkdir /tmp/bulk-upload-zip-file-tmp && ln -fs /tmp/bulk-upload-zip-file-tmp /app/bulk-upload-zip-file-tmp && \
@@ -98,10 +98,13 @@ COPY --from=builder /app ./
 
 RUN groupadd -g 1001 app && \
     useradd -u 1001 -g app app
+
+RUN mkdir /app/asset-manager-tmp && chown 1001:1001 /app/asset-manager-tmp
+
 USER 1001
 
 RUN mkdir /tmp/app-tmp && \
-    mkdir /tmp/asset-manager-tmp && \
+    # mkdir /tmp/asset-manager-tmp && \
     mkdir /tmp/carrierwave-tmp && \
     mkdir /tmp/attachment-cache && \
     mkdir /tmp/bulk-upload-zip-file-tmp && \
