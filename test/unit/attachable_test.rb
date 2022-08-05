@@ -350,24 +350,63 @@ class AttachableTest < ActiveSupport::TestCase
     assert_empty publication.deleted_attachments
   end
 
-  test "#created attachments" do
-    publication = create(:draft_publication)
+  test "#changed_attachments returns a Hash of changed attachments" do
+    csv_file = File.open(Rails.root.join("test/fixtures/sample.csv"))
+    docx_file = File.open(Rails.root.join("test/fixtures/sample.docx"))
+    pdf_file = File.open(Rails.root.join("test/fixtures/simple.pdf"))
+    rtf_file = File.open(Rails.root.join("test/fixtures/sample.rtf"))
+    another_pdf_file = File.open(Rails.root.join("test/fixtures/whitepaper.pdf"))
 
-    publication.attachments << attachment1 = build(:file_attachment, created_at: publication.created_at + 10.seconds)
-    publication.attachments << attachment2 = build(:html_attachment, created_at: publication.created_at + 10.seconds)
+    publication = create(:draft_publication, :with_file_attachment,
+                          attachments: [
+                            unchanged_file = build(:file_attachment, file: csv_file),
+                            changed_file = build(:file_attachment, file: docx_file),
+                            changed_title = build(:file_attachment, file: pdf_file),
+                            unchanged_html = build(:html_attachment),
+                            changed_html = build(:html_attachment),
+                            deleted_html = build(:html_attachment),
+                          ])
 
-    assert_equal [attachment1, attachment2], publication.created_attachments
+    # Allow the Edition creation 'grace period' to pass
+    Timecop.travel Attachable::CASE_CREATION_TIME.from_now + 1.second
+
+    # Create some new attachments
+    publication.attachments << new_file = build(:file_attachment, file: another_pdf_file)
+    publication.attachments << new_html = build(:html_attachment)
+
+    # Govspeak is converted to HTML in an asynchronous job (called GovspeakContentWorker)
+    # which runs _a few_ seconds after the HTML Attachment has been created/updated.
+    # In the real world, this means the updated_at timestamp is always > created_at,
+    # so we emulate this here with time travel.
+    Timecop.travel 1.second.from_now
+    new_html.govspeak_content.update!(computed_body_html: "Generated HTML from async GovspeakContentWorker")
+
+    # Replace the file on an attachment
+    changed_file.update!(attachment_data: build(:attachment_data, file: rtf_file))
+
+    # Change title of an attachment
+    changed_title.update!(title: "This attachment's title has been changed")
+
+    # Change body of a HTML attachment
+    changed_html.govspeak_content.update!(body: "This HTML attachment's body has been changed")
+
+    # Delete an attachment
+    deleted_html.destroy!
+  
+    # Ensure there are no duplicates
+    changed_ids = publication.changed_attachments.select { |attachment| attachment.attachment.id }
+    assert_equal changed_ids.uniq, changed_ids
+
+    # Check the changed attachments are correct
+    created_attachments = publication.changed_attachments.select { |attachment| attachment.status == :created }
+    updated_attachments = publication.changed_attachments.select { |attachment| attachment.status == :updated }
+    deleted_attachments = publication.changed_attachments.select { |attachment| attachment.status == :deleted }
+
+    assert_equal([new_file, new_html], created_attachments)
+    assert_equal([changed_file, changed_title, changed_html], updated_attachments)
+    assert_equal([deleted_html], deleted_attachments)
   end
-
-  test "#updated_attachments" do
-    publication = create(:draft_publication)
-
-    publication.attachments << attachment1 = build(:file_attachment, updated_at: publication.created_at + 10.seconds)
-    publication.attachments << attachment2 = build(:html_attachment, updated_at: publication.created_at + 10.seconds)
-
-    assert_equal [attachment1, attachment2], publication.updated_attachments
-  end
-
+  
   test "#attachables returns array including itself" do
     attachable_edition = build(:edition)
     assert attachable_edition.allows_attachments?

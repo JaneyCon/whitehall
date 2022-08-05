@@ -67,19 +67,20 @@ module Attachable
     [self]
   end
 
-  def has_attachment_changes?
-    created_attachments.any? || updated_attachments.any? || deleted_attachments.any?
-  end
+  ChangedAttachment = Struct.new(:attachment, :status)
 
-  def created_attachments
-    attachments.where("created_at > ?", created_at + CASE_CREATION_TIME)
-  end
+  def changed_attachments
+    created = attachments.where("created_at > ?", created_at + CASE_CREATION_TIME)
 
-  def updated_attachments
-    updated_attachments = attachments.where("updated_at > ?", created_at) ||
-      attachments.join(:govspeak_content).where("govspeak_content.updated_at > ?", govspeak_content.created_at)
+    updated_attachments = attachments.where("updated_at > created_at")
+    updated_html_attachments = html_attachments.joins(:govspeak_content).where("govspeak_contents.updated_at > govspeak_contents.created_at")
+    updated = (updated_attachments + updated_html_attachments) - created
 
-    updated_attachments - created_attachments
+    attachments_with_changes = created.map { |a| ChangedAttachment.new(a, :created) } +
+    updated.map { |a| ChangedAttachment.new(a, :updated) } +
+    deleted_attachments.map { |a| ChangedAttachment.new(a, :deleted) }
+
+    attachments_with_changes
   end
 
   def uploaded_to_asset_manager?

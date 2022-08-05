@@ -2,18 +2,16 @@
   <h3 class="remove-top-margin">Do users need to know the content has changed?</h3>
   <p class="hint change-note-hint"> Telling users when published information changes is important for transparency.</p>
 
-  <% if edition.allows_attachments? && edition.has_attachment_changes? %>
+  <% if edition.allows_attachments? && edition.changed_attachments.any? %>
     <div class="alert alert-info">
       <h4> Attachments you've added, changed or deleted </h4>
       <ul class="govuk-list">
-        <% edition.created_attachments.each do |attachment| %>
-          <li><%= "#{attachment.title} - #{attachment.readable_type} attachment" %> <span class="label label-success">Created</span></li>
-        <% end %>
-        <% edition.updated_attachments.each do |attachment| %>
-          <li><%= "#{attachment.title} - #{attachment.readable_type} attachment" %> <span class="label label-warning">Updated</span></li>
-        <% end %>
-        <% edition.deleted_attachments.each do |attachment| %>
-          <li><%= "#{attachment.title} - #{attachment.readable_type} attachment" %> <span class="label label-danger">Deleted</span></li>
+        <% label_classes = {created: "label-success", updated: "label-warning", deleted: "label-danger"} %>
+        <% edition.changed_attachments.each do |attachment| %>
+          <li>
+            <%= "#{attachment.attachment.title} - #{attachment.attachment.readable_type} attachment" %>
+            <%= tag.span attachment.status, class: ["label", label_classes[attachment.status]] %>
+          </li>
         <% end %>
       </ul>
     </div>
