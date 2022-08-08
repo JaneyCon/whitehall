@@ -136,6 +136,10 @@ class Document < ApplicationRecord
     document_type.underscore.tr("_", " ")
   end
 
+  def first_edition
+    editions.order(id: :asc).first
+  end
+
 private
 
   def destroy_all_editions
