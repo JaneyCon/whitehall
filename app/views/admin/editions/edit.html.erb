@@ -33,8 +33,9 @@
     </div>
 
     <div class="col-md-4">
-      <% if current_user.can_view_move_tabs_to_endpoints? %>
-        <div class="govspeak_help" id="govspeak_help">
+      <%= sidebar_tabs edition_tabs(@edition, remarks_count: @edition_remarks.length, history_count: @document_history.total_count, editing: true) do |tabs| %>
+
+        <%= tabs.pane class: "govspeak_help", id: "govspeak_help" do %>
           <%= render "govspeak_help", hide_inline_attachments_help: !@edition.allows_inline_attachments?,
                                       show_attachments_tab_help: true,
                                       govspeak_link_errors: force_publisher.govspeak_link_errors,
@@ -43,25 +44,7 @@
           <%= render "words_to_avoid_guidance" %>
           <h3 class="style-title">Style</h3>
           <p>For style, see the <a href="https://www.gov.uk/guidance/style-guide">style guide</a></p>
-        </div>
-      <% else %>
-        <%= sidebar_tabs edition_tabs(
-          @edition,
-          remarks_count: @edition_remarks.length,
-          history_count: @edition_history.total_count,
-          editing: true,
-        ) do |tabs| %>
-
-          <%= tabs.pane class: "govspeak_help", id: "govspeak_help" do %>
-            <%= render "govspeak_help", hide_inline_attachments_help: !@edition.allows_inline_attachments?,
-                                        show_attachments_tab_help: true,
-                                        govspeak_link_errors: force_publisher.govspeak_link_errors,
-                                        link_check_report: LinkCheckerApiService.has_links?(@edition, convert_admin_links: false) ? @edition.link_check_reports.last : nil %>
-
-            <%= render "words_to_avoid_guidance" %>
-            <h3 class="style-title">Style</h3>
-            <p>For style, see the <a href="https://www.gov.uk/guidance/style-guide">style guide</a></p>
-          <% end %>
+        <% end %>
 
           <%= tabs.pane class: "audit-trail", id: "notes" do %>
             <h1>Notes</h1>
@@ -73,11 +56,11 @@
           <%= tabs.pane class: "audit-trail", id: "history" do %>
             <div class="audit-trail-page">
               <h1>Activity</h1>
-              <%= paginate @edition_history, theme: 'audit_trail' %>
+              <%= paginate @document_history.query, theme: 'audit_trail' %>
               <ul class="list-unstyled">
-                <%= render partial: "audit_trail_entry", collection: @edition_history %>
+                <%= render partial: "audit_trail_entry", collection: @document_history.audit_trail %>
               </ul>
-              <%= paginate @edition_history, theme: 'audit_trail' %>
+              <%= paginate @document_history.query, theme: 'audit_trail' %>
             </div>
           <% end %>
             <% if @edition.can_be_fact_checked? %>
@@ -87,7 +70,7 @@
                 <p>To send a fact check request, save your changes.</p>
               <% end %>
             <% end %>
-        <% end %>
+
       <% end %>
     </div>
   </div>
