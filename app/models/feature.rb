@@ -22,7 +22,7 @@ class Feature < ApplicationRecord
 
   def republish_organisation_to_publishing_api
     featurable = feature_list.featurable if feature_list
-    if featurable.is_a?(Organisation) && featurable.persisted?
+    if (featurable.is_a?(Organisation) || featurable.is_a?(TopicalEvent)) && featurable.persisted?
       Whitehall::PublishingApi.republish_async(featurable)
     end
   end
