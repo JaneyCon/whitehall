@@ -28,9 +28,7 @@ module Admin::AuditTrailHelper
 
   def render_editorial_remarks(remarks, edition)
     previous_state = nil
-    out = ""
-    list = ""
-    remarks.query.each do |remark|
+    groups = remarks.query.reduce([]) do |memo, remark|
       current_state = if remark.edition_id > edition.id
                         :newer
                       elsif remark.edition_id < edition.id
@@ -38,21 +36,53 @@ module Admin::AuditTrailHelper
                       else
                         :current
                       end
-
-      if current_state != previous_state
-        out << tag.ul(class: "list-unstyled") { list.html_safe } unless list.empty?
-        list = ""
-        out << case current_state
-               when :newer then tag.h2("On newer editions", class: "add-top-margin")
-               when :previous then tag.h2("On previous editions", class: "add-top-margin")
-               when :current then tag.h2("On this edition", class: "add-top-margin")
-               end
-      end
-
-      list << render(partial: "admin/editions/remark_entry", locals: { remark: remark })
-      previous_state = current_state
+      memo << { heading_type: current_state, remarks: [] } if current_state != previous_state
+      memo.last[:remarks] << remark
     end
-    out << tag.ul(class: "list-unstyled") { list.html_safe }
+    rendered_groups = groups.map { |g| render_editorial_remarks_list(g[:remarks], g[:heading_type]) }
+    safe_join(rendered_groups)
+  end
+
+  def render_editorial_remarks_list(remarks, heading_type)
+    out = ""
+    out << case heading_type
+           when :newer then tag.h2("On newer editions", class: "add-top-margin")
+           when :previous then tag.h2("On previous editions", class: "add-top-margin")
+           when :current then tag.h2("On this edition", class: "add-top-margin")
+           end
+
+    remark_items = remarks.map { |r| render(partial: "admin/editions/remark_entry", locals: { remark: r }) }
+    out << tag.ul(class: "list-unstyled") { safe_join(remark_items) }
     out.html_safe
   end
+
+  # def render_editorial_remarks(remarks, edition)
+  #   previous_state = nil
+  #   out = ""
+  #   list = ""
+  #   remarks.query.each do |remark|
+  #     current_state = if remark.edition_id > edition.id
+  #                       :newer
+  #                     elsif remark.edition_id < edition.id
+  #                       :previous
+  #                     else
+  #                       :current
+  #                     end
+
+  #     if current_state != previous_state
+  #       out << tag.ul(class: "list-unstyled") { list.html_safe } unless list.empty?
+  #       list = ""
+  #       out << case current_state
+  #              when :newer then tag.h2("On newer editions", class: "add-top-margin")
+  #              when :previous then tag.h2("On previous editions", class: "add-top-margin")
+  #              when :current then tag.h2("On this edition", class: "add-top-margin")
+  #              end
+  #     end
+
+  #     list << render(partial: "admin/editions/remark_entry", locals: { remark: remark })
+  #     previous_state = current_state
+  #   end
+  #   out << tag.ul(class: "list-unstyled") { list.html_safe }
+  #   out.html_safe
+  # end
 end
