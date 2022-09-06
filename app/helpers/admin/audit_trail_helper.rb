@@ -26,33 +26,25 @@ module Admin::AuditTrailHelper
     )
   end
 
-  def render_editorial_remarks(remarks, edition)
-    previous_state = nil
-    out = ""
-    list = ""
-    remarks.query.each do |remark|
-      current_state = if remark.edition_id > edition.id
-                        :newer
-                      elsif remark.edition_id < edition.id
-                        :previous
-                      else
-                        :current
-                      end
-
-      if current_state != previous_state
-        out << tag.ul(class: "list-unstyled") { list.html_safe } unless list.empty?
-        list = ""
-        out << case current_state
-               when :newer then tag.h2("On newer editions", class: "add-top-margin")
-               when :previous then tag.h2("On previous editions", class: "add-top-margin")
-               when :current then tag.h2("On this edition", class: "add-top-margin")
-               end
+  def render_editorial_remarks(paginated_remarks, edition)
+    grouped_remarks = paginated_remarks.query.group_by do |remark|
+      if remark.edition_id > edition.id
+        "On newer editions"
+      elsif remark.edition_id < edition.id
+        "On previous editions"
+      else
+        "On this edition"
       end
-
-      list << render(partial: "admin/editions/remark_entry", locals: { remark: remark })
-      previous_state = current_state
     end
-    out << tag.ul(class: "list-unstyled") { list.html_safe }
-    out.html_safe
+
+    html = grouped_remarks.map do |heading, remarks|
+      h2 = tag.h2(heading, class: "add-top-margin")
+      ul = tag.ul(class: "list-unstyled") do
+        render partial: "admin/editions/remark_entry", collection: remarks, as: :remark
+      end
+      h2 + ul
+    end
+
+    html.join.html_safe
   end
 end
