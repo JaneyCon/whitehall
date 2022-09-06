@@ -17,48 +17,79 @@ class Admin::AuditTrailHelperTest < ActionView::TestCase
     @render_first = Nokogiri::HTML(render_editorial_remarks(document_remarks, first_edition))
   end
 
-  test "#render_editorial_remarks returns the correct h2 tags" do
-    assert_select @render_newest, "h2", 2
-    assert_select @render_newest, "h2", { text: "On this edition", text: "On previous editions" } # rubocop:disable Lint/DuplicateHashKey
-    refute_select @render_newest, "h2", text: "On newer editions"
-
-    assert_select @render_second, "h2", 3
-    assert_select @render_second, "h2", { text: "On newer editions", text: "On this edition", text: "On previous editions" } # rubocop:disable Lint/DuplicateHashKey
-
-    assert_select @render_first, "h2", 2
-    assert_select @render_first, "h2", { text: "On newer editions", text: "On this edition" } # rubocop:disable Lint/DuplicateHashKey
-    refute_select @render_first, "h2", text: "On previous editions"
+  def groups_from_html(html_node)
+    # HTML structure should be a <h2> followed by a <ul> of remarks
+    html_node.css("h2").map do |h2|
+      ul = h2.next
+      {
+        heading: h2.text,
+        remarks: ul.css("li .body").map(&:text),
+      }
+    end
   end
 
-  test "#render_editorial_remarks groups remarks by newer/current/previous" do
-    assert_select @render_newest, "ul", 2 do |ul_tags|
-      ul_tags.each_with_index do |ul_tag, index|
-        if index.zero?
-          assert_select ul_tag, "li", 1
-        else
-          assert_select ul_tag, "li", 2
-          assert_select ul_tag, "span", { text: "First edition remark", text: "Second edition remark" } # rubocop:disable Lint/DuplicateHashKey
-          refute_select ul_tag, "span", text: "Newest edition remark"
-        end
-      end
-    end
+  test "#render_editorial_remarks for the newest edition of a document" do
+    expected_groups = [
+      {
+        heading: "On this edition",
+        remarks: [
+          "Newest edition remark",
+        ],
+      },
+      {
+        heading: "On previous editions",
+        remarks: [
+          "Second edition remark",
+          "First edition remark",
+        ],
+      },
+    ]
 
-    assert_select @render_second, "ul", 3 do |ul_tags|
-      ul_tags.each_with_index do |ul_tag, _index|
-        assert_select ul_tag, "li", 1
-      end
-    end
+    assert_equal expected_groups, groups_from_html(@render_newest)
+  end
 
-    assert_select @render_first, "ul", 2 do |ul_tags|
-      ul_tags.each_with_index do |ul_tag, index|
-        if index.zero?
-          assert_select ul_tag, "li", 2
-          assert_select ul_tag, "span", { text: "Newest edition remark", text: "Second edition remark" } # rubocop:disable Lint/DuplicateHashKey
-          refute_select ul_tag, "span", text: "First edition remark"
-        else
-          assert_select ul_tag, "li", 1
-        end
-      end
-    end
+  test "#render_editorial_remarks for an older edition of a document" do
+    expected_groups = [
+      {
+        heading: "On newer editions",
+        remarks: [
+          "Newest edition remark",
+        ],
+      },
+      {
+        heading: "On this edition",
+        remarks: [
+          "Second edition remark",
+        ],
+      },
+      {
+        heading: "On previous editions",
+        remarks: [
+          "First edition remark",
+        ],
+      },
+    ]
+
+    assert_equal expected_groups, groups_from_html(@render_second)
+  end
+
+  test "#render_editorial_remarks for the oldest edition of a document" do
+    expected_groups = [
+      {
+        heading: "On newer editions",
+        remarks: [
+          "Newest edition remark",
+          "Second edition remark",
+        ],
+      },
+      {
+        heading: "On this edition",
+        remarks: [
+          "First edition remark",
+        ],
+      },
+    ]
+
+    assert_equal expected_groups, groups_from_html(@render_first)
   end
 end
