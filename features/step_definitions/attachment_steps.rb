@@ -18,11 +18,13 @@ When(/^I upload a file attachment with the title "(.*?)" and the file "(.*?)"$/)
 end
 
 When(/^I upload an html attachment with the title "(.*?)" and the body "(.*?)"$/) do |title, body|
+  design_system_layout = @user.has_permission? "Preview design system"
+
   click_on "Add new HTML attachment"
   fill_in "Title", with: title
   fill_in "Body", with: body
   check "Manually numbered headings"
-  click_on "Save"
+  click_on design_system_layout ? "Next" : "Save"
 end
 
 When(/^I add an external attachment with the title "(.*?)" and the URL "(.*?)"$/) do |title, url|
