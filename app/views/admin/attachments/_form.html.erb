@@ -23,29 +23,35 @@
 
   <% if attachment.is_a?(HtmlAttachment) %>
     <%= form.fields_for :govspeak_content do |govspeak_fields| %>
-      <%= render "govuk_publishing_components/components/checkboxes", {
-        name: "attachment[govspeak_content_attributes][manually_numbered_headings]",
-        items: [
-          {
-            label: "Manually numbered headings",
-            value: "1",
-            checked: form.object.content_id != nil
-          }
-        ]
-      } %>
-
-      <%= render "govuk_publishing_components/components/details", {
-        title: "Guidance on manually numbered headings"
-      } do %>
-        <p>Manually number your headings using the numbering scheme below.</p>
-        <code>## 1. First heading<br />### 1.1 First sub-heading<br />### 1.2 Second sub-heading<br />### Unnumbered sub-heading</code>
-      <% end %>
-
-      <%= content_tag :fieldset, class: ("right-to-left" if form.object.rtl_locale?) do %>
-        <%= govspeak_fields.text_area :body, rows: 20, class: "previewable", data: {
-          module: "paste-html-to-govspeak"
+      <div class="govuk-!-margin-bottom-8">
+        <%= render "govuk_publishing_components/components/checkboxes", {
+          name: "attachment[govspeak_content_attributes][manually_numbered_headings]",
+          items: [
+            {
+              label: "Manually numbered headings",
+              value: "1",
+              checked: form.object.content_id != nil
+            }
+          ]
         } %>
-      <% end %>
+
+        <%= render "govuk_publishing_components/components/details", {
+          title: "Guidance on manually numbered headings"
+        } do %>
+          <p>Manually number your headings using the numbering scheme below.</p>
+          <code>## 1. First heading<br />### 1.1 First sub-heading<br />### 1.2 Second sub-heading<br />### Unnumbered sub-heading</code>
+        <% end %>
+      </div>
+
+      <div class="govuk-!-margin-bottom-8">
+        <%= render "govuk_publishing_components/components/textarea", {
+          label: {
+            heading_size: "l",
+            text: "Body (required)"
+          },
+          name: "attachment[govspeak_content_attributes][body]"
+        } %>
+      </div>
     <% end %>
   <% elsif attachment.is_a?(ExternalAttachment) %>
     <div class="govuk-!-margin-bottom-8">
