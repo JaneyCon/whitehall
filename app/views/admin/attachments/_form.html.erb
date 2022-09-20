@@ -73,7 +73,7 @@
 
   <%= hidden_field_tag :type, params[:type] %>
 
-  <% if attachment.is_a?(ExternalAttachment) %>
+  <% if attachment.is_a?(ExternalAttachment) || attachment.is_a?(HtmlAttachment) %>
     <%= render "govuk_publishing_components/components/button", {
       text: "Next"
     } %>
