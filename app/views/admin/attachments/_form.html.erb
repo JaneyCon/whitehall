@@ -34,16 +34,12 @@
         ]
       } %>
 
-      <div class="js-manual-numbering-help<%= ' js-hidden' unless attachment.manually_numbered_headings? %>">
-        <pre>
-          ## 1. First heading
-          ### 1.1 First sub-heading
-          ### 1.2 Second sub-heading
-          ### Unnumbered sub-heading
-
-          Manually number your headings as appropriate using the above numbering scheme.
-        </pre>
-      </div>
+      <%= render "govuk_publishing_components/components/details", {
+        title: "Guidance on manually numbered headings"
+      } do %>
+        <p>Manually number your headings using the numbering scheme below.</p>
+        <code>## 1. First heading<br />### 1.1 First sub-heading<br />### 1.2 Second sub-heading<br />### Unnumbered sub-heading</code>
+      <% end %>
 
       <%= content_tag :fieldset, class: ("right-to-left" if form.object.rtl_locale?) do %>
         <%= govspeak_fields.text_area :body, rows: 20, class: "previewable", data: {
