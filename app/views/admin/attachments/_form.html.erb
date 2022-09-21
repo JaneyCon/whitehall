@@ -49,7 +49,9 @@
             heading_size: "l",
             text: "Body (required)"
           },
-          name: "attachment[govspeak_content_attributes][body]"
+          name: "attachment[govspeak_content_attributes][body]",
+          id: "attachment_govspeak_content.body",
+          error_items: errors_for(attachment.errors, :"govspeak_content.body")
         } %>
       </div>
     <% end %>
