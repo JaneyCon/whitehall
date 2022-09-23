@@ -3,14 +3,19 @@ module Admin::SidebarHelper
     if !current_user.has_permission? "Preview design system"
       # sidebar_tabs govspeak_help: "Help" do |tabs|
       # tabs.pane id: "govspeak_help", class: "govspeak_help" do
-      #   tab_content = []
-      render("admin/editions/govspeak_help", options)
-      # tab_content << render("admin/editions/words_to_avoid_guidance")
-      # tab_content << tag.h3("Style", class: "style-title")
+      sidebar_content = []
+      sidebar_content << render("admin/editions/govspeak_help", options)
+      sidebar_content << render("admin/editions/style_guidance", options)
+      # sidebar_content << tag.h2("Styling", class: "govuk-heading-l")
+      # sidebar_content << tag.p do
+      #   raw %(For details, see the <a href='https://www.gov.uk/guidance/content-design/writing-for-gov-uk#plain-english'>guideline on using plain English</a></p>)
+      # end
+
+      sidebar_content << render("admin/editions/words_to_avoid_guidance")
       # tab_content << tag.p do
       #   raw %(For style, see the #{link_to('style guide', 'https://www.gov.uk/guidance/style-guide')})
       # end
-      # raw tab_content.join("\n")
+      raw sidebar_content.join("\n")
       # end
       # end
     else
